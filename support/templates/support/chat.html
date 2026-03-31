@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Support Chat</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            height: 80vh;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-header {
+            background: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .message {
+            max-width: 75%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            line-height: 1.4;
+            position: relative;
+            word-wrap: break-word;
+        }
+        .message-user {
+            align-self: flex-end;
+            background: #007bff;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        .message-ai {
+            align-self: flex-start;
+            background: #e9ecef;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+        .timestamp {
+            font-size: 0.75rem;
+            margin-top: 5px;
+            opacity: 0.8;
+            display: block;
+            text-align: right;
+        }
+        .chat-input-container {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 25px;
+            outline: none;
+            resize: none;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .chat-input:focus {
+            border-color: #007bff;
+        }
+        .send-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 0 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .send-button:hover {
+            background: #0056b3;
+        }
+        .send-button:disabled {
+            background: #a5c8ff;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        Support Chat
+    </div>
+    <div class="chat-messages" id="chatMessages">
+        {% for message in messages %}
+            {% if message.sender == 'user' %}
+                <div class="message message-user">
+                    {{ message.content }}
+                    <span class="timestamp">{{ message.timestamp|date:"h:i A" }}</span>
+                </div>
+            {% else %}
+                <div class="message message-ai">
+                    {{ message.content }}
+                    <span class="timestamp">{{ message.timestamp|date:"h:i A" }}</span>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    
+    <form class="chat-input-container" id="chatForm">
+        {% csrf_token %}
+        {{ form.content }}
+        <button type="submit" class="send-button" id="sendBtn">Send</button>
+    </form>
+</div>
+
+<script>
+    const chatMessages = document.getElementById('chatMessages');
+    const chatForm = document.getElementById('chatForm');
+    const inputField = document.querySelector('.chat-input');
+    const sendBtn = document.getElementById('sendBtn');
+
+    // Auto-scroll on load
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function appendMessage(sender, content, time) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message message-${sender}`;
+        
+        const textNode = document.createTextNode(content);
+        msgDiv.appendChild(textNode);
+        
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'timestamp';
+        // HTML entities work nicer but innerText is safer
+        timeSpan.innerText = time;
+        msgDiv.appendChild(timeSpan);
+        
+        chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const messageText = inputField.value.trim();
+        if(!messageText) return;
+        
+        // Prepare UI for sending
+        inputField.value = '';
+        sendBtn.disabled = true;
+        
+        // Append optimistic user message snippet (time from browser approximation)
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        appendMessage('user', messageText, timeString);
+
+        // Fetch API
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        fetch("{% url 'support:api_message' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({ message: messageText })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                // Append AI Response
+                appendMessage(data.ai_message.sender, data.ai_message.content, data.ai_message.timestamp);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to send message.');
+        })
+        .finally(() => {
+            sendBtn.disabled = false;
+            inputField.focus();
+        });
+    });
+
+    // Submitting with Enter key
+    inputField.addEventListener('keypress', function(e) {
+        if(e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            chatForm.dispatchEvent(new Event('submit'));
+        }
+    });
+</script>
+
+</body>
+</html>
