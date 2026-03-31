@@ -53,6 +53,27 @@
             background: #0056b3;
             transform: translateY(-2px);
         }
+        .developer-credit {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        .dev-photo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .dev-name {
+            color: #555;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -61,6 +82,11 @@
     <h1>Welcome to Support</h1>
     <p>We are here to help you. Access our intelligent customer support chat system below.</p>
     <a href="{% url 'support:chat' %}" class="chat-button">Start Chat</a>
+
+    <div class="developer-credit">
+        <img src="https://github.com/baseltheartist.png" alt="Basel" class="dev-photo">
+        <span class="dev-name">Developed by Basel</span>
+    </div>
 </div>
 
 </body>
