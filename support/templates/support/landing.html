@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
         body {
             background-color: #f0f2f5;
             display: flex;
@@ -19,25 +21,29 @@
             height: 100vh;
             text-align: center;
         }
+
         .landing-container {
             background: #ffffff;
             padding: 50px 40px;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             max-width: 500px;
             width: 100%;
         }
+
         h1 {
             color: #333;
             margin-bottom: 20px;
             font-size: 2.5rem;
         }
+
         p {
             color: #666;
             margin-bottom: 30px;
             font-size: 1.1rem;
             line-height: 1.5;
         }
+
         .chat-button {
             display: inline-block;
             background: #007bff;
@@ -49,10 +55,12 @@
             font-weight: bold;
             transition: background-color 0.2s, transform 0.2s;
         }
+
         .chat-button:hover {
             background: #0056b3;
             transform: translateY(-2px);
         }
+
         .developer-credit {
             margin-top: 40px;
             padding-top: 20px;
@@ -62,13 +70,15 @@
             justify-content: center;
             gap: 15px;
         }
+
         .dev-photo {
             width: 60px;
             height: 60px;
             border-radius: 50%;
             object-fit: cover;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
+
         .dev-name {
             color: #555;
             font-size: 1.1rem;
@@ -76,18 +86,20 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="landing-container">
-    <h1>Welcome to Support</h1>
-    <p>We are here to help you. Access our intelligent customer support chat system below.</p>
-    <a href="{% url 'support:chat' %}" class="chat-button">Start Chat</a>
+    <div class="landing-container">
+        <h1>Welcome to Support</h1>
+        <p>We are here to help you. Access our intelligent customer support chat system below.</p>
+        <a href="{% url 'support:chat' %}" class="chat-button">Start Chat</a>
 
-    <div class="developer-credit">
-        <img src="https://github.com/baseltheartist.png" alt="Basel" class="dev-photo">
-        <span class="dev-name">Developed by Basel</span>
+        <div class="developer-credit">
+            <img src="https://github.com/baseltheartist.png" alt="Basel" class="dev-photo">
+            <span class="dev-name">Developed by Basel</span>
+        </div>
     </div>
-</div>
 
 </body>
+
 </html>
