@@ -1,5 +1,17 @@
 from django.contrib import admin
-from .models import Conversation, Message
+from django.contrib.auth.admin import UserAdmin
+from .models import Conversation, Message, CustomUser
+
+@admin.register(CustomUser)
+class CustomUserAdmin(UserAdmin):
+    fieldsets = UserAdmin.fieldsets + (
+        ('Extra Fields', {'fields': ('phone_number',)}),
+    )
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        ('Extra Fields', {'fields': ('phone_number',)}),
+    )
+    list_display = ['username', 'email', 'phone_number', 'is_staff']
+
 
 @admin.register(Conversation)
 class ConversationAdmin(admin.ModelAdmin):
